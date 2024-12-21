@@ -1,5 +1,10 @@
 # Retrozinndev's Hyprland Dots
-My personal Hyprland configuration that I use everyday! Some of the colors available in stylesheet files can be found in the [Catppuccin Mocha Palette](https://catppuccin.com/palette#flavor-mocha), go check it out, it's awesome!
+Personal Hyprland Configuration files that I made at the time I started using Hyprland! This is my first config, so don't expect much!
+Some of the colors available in stylesheet files can be found in the [Catppuccin Mocha Palette](https://catppuccin.com/palette#flavor-mocha), go check it out, it's awesome!
+
+> [!warning]
+> If you really are going to use this, please note that not everything may work out-of-the-box! <br>
+> These dotfiles are pretty old already. See my new ones in the main branch [`ryo`](https://github.com/retrozinndev/Hyprland-Dots/tree/ryo)!
 
 <div align="center">
 <div class="screenshot-container">
