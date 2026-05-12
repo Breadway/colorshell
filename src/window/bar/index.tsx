@@ -6,6 +6,7 @@ import { Apps } from "./widgets/Apps";
 import { Clock } from "./widgets/Clock";
 import { Status } from "./widgets/Status";
 import { Media } from "./widgets/Media";
+import { SystemStats } from "./widgets/SystemStats";
 import { Windows } from "..";
 
 
@@ -37,6 +38,7 @@ export const Bar = Windows.forMonitors((mon) => {
                 <Gtk.Box class={"widgets-right"}
                   spacing={widgetSpacing} halign={Gtk.Align.END}
                   $type="end">
+                    <SystemStats />
                     <Tray />
                     <Status />
                 </Gtk.Box>

@@ -135,7 +135,7 @@ export class Socket<T extends Socket.Type = Socket.Type.CLIENT> extends GObject.
 
     /** client-only method.
       * sends a message to the socket and waits for a response.
-      * 
+      *
       * @param message contents to send to the socket
       *
       * @returns a `string` promise, that returns the socket's response to the message, can be null. */
@@ -145,15 +145,22 @@ export class Socket<T extends Socket.Type = Socket.Type.CLIENT> extends GObject.
         if(!stream || stream.is_closed())
             return null;
 
-        return decoder.decode(
-            (await stream.read_bytes_async(4096, GLib.PRIORITY_DEFAULT, null)).toArray()
-        );
+        const chunks: Uint8Array[] = [];
+        while(true) {
+            const chunk = (await stream.read_bytes_async(4096, GLib.PRIORITY_DEFAULT, null)).toArray();
+            if(chunk.length === 0) break;
+            chunks.push(chunk);
+        }
+        const out = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
+        let offset = 0;
+        for(const chunk of chunks) { out.set(chunk, offset); offset += chunk.length; }
+        return decoder.decode(out);
     }
 
     /** client-only method.
       * synchronous version of `Socket.simpleSend()`.
       * sends a message to the socket and waits for a response.
-      * 
+      *
       * @param message contents to send to the socket
       *
       * @returns a `string` promise, that returns the socket's response to the message, can be null. */
@@ -163,7 +170,16 @@ export class Socket<T extends Socket.Type = Socket.Type.CLIENT> extends GObject.
         if(!stream || stream.is_closed())
             return null;
 
-        return decoder.decode(stream.read_bytes(4096, null).toArray());
+        const chunks: Uint8Array[] = [];
+        while(true) {
+            const chunk = stream.read_bytes(4096, null).toArray();
+            if(chunk.length === 0) break;
+            chunks.push(chunk);
+        }
+        const out = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
+        let offset = 0;
+        for(const chunk of chunks) { out.set(chunk, offset); offset += chunk.length; }
+        return decoder.decode(out);
     }
 
     /** client-only method.

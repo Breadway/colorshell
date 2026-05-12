@@ -17,10 +17,12 @@ export class Wallpaper extends GObject.Object {
     declare $signals: Wallpaper.SignalSignatures;
 
     #wallpaper: Gio.File|null = null;
+    #lockscreenWallpaper: Gio.File = Gio.File.new_for_path(`/var/tmp/hypr-rising.jpg`);
     #userHyprpaperFile!: Gio.File;
     #defaultHyprpaperFile!: Gio.File;
     #hyprpaperFile!: Gio.File;
     #wallpapersDir!: Gio.File;
+    #provider: string = GLib.getenv("WALLPAPER_PROVIDER") ?? "hyprpaper";
     /** pywal-generated colors file */
     #walFile: Gio.File = Gio.File.new_for_path(`${GLib.get_user_cache_dir()}/wal/colors`);
     #proc: Gio.Subprocess|null = null;
@@ -74,6 +76,8 @@ export class Wallpaper extends GObject.Object {
             throw new Error("Wallpaper: Couldn't get wallpaper from hyprpaper file! You \
 may check the syntax of your hyprpaper.conf for errors");
         }
+
+        void this.syncLockscreenWallpaper();
 
         if(!this.#walFile.query_exists(null))
             this.reloadColors();
@@ -204,7 +208,9 @@ may check the syntax of your hyprpaper.conf for errors");
         if(this.#proc)
             await this.quitDaemon();
 
-        this.#proc = Gio.Subprocess.new(["hyprpaper", "--config", this.#hyprpaperFile.peek_path()!], Gio.SubprocessFlags.STDOUT_SILENCE);
+        // Only launch a daemon for hyprpaper; other providers may not need a persistent process
+        if(this.#provider === "hyprpaper")
+            this.#proc = Gio.Subprocess.new(["hyprpaper", "--config", this.#hyprpaperFile.peek_path()!], Gio.SubprocessFlags.STDOUT_SILENCE);
     }
 
     private writeChanges(): void {
@@ -295,7 +301,24 @@ wallpaper {
         if(this.#wallpaper?.peek_path()?.trim() === "")
             return;
 
-        exec(`hyprctl hyprpaper wallpaper ", ${this.#wallpaper?.peek_path()?.replaceAll(',', "\\,")}, ${this.positioning}"`);
+        await this.syncLockscreenWallpaper();
+
+        const path = this.#wallpaper?.peek_path()!;
+        if(this.#provider === "hyprpaper") {
+            exec(`hyprctl hyprpaper wallpaper ", ${path.replaceAll(',', "\\,")}, ${this.positioning}"`);
+        } else if(this.#provider === "awww") {
+            try {
+                await execAsync(`awww img "${path.replaceAll('"', '\\"')}"`);
+            } catch(e) {
+                try {
+                    await execAsync(`awww img "${path.replaceAll('"', '\\"')}"`);
+                } catch(_) {
+                    console.error("Wallpaper: failed to set wallpaper with awww");
+                }
+            }
+        } else {
+            exec(`hyprctl hyprpaper wallpaper ", ${path.replaceAll(',', "\\,")}, ${this.positioning}"`);
+        }
 
         write && this.writeChanges();
     }
@@ -325,6 +348,23 @@ wallpaper {
         }).catch((e: Error) => {
             console.error("Wallpaper: Couldn't set wallpaper:", e);
         });
+    }
+
+    private async syncLockscreenWallpaper(): Promise<void> {
+        if(!this.#wallpaper)
+            return;
+
+        const source = this.#wallpaper.peek_path();
+        const destination = this.#lockscreenWallpaper.peek_path();
+
+        if(!source || !destination)
+            return;
+
+        try {
+            await execAsync(`cp "${source.replaceAll('"', '\\"')}" "${destination}"`);
+        } catch(e) {
+            console.error(`Wallpaper: Couldn't update the lock-screen wallpaper copy: ${(e as Error).message}`);
+        }
     }
 
     public async pickWallpaper(): Promise<string|undefined> {

@@ -7,10 +7,14 @@ settings:
 importers:
 
   .:
+    dependencies:
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
     devDependencies:
       ags:
         specifier: file:/usr/share/ags/js
-        version: file:../../../../usr/share/ags/js(gnim@1.8.2)
+        version: file:../../../usr/share/ags/js(gnim@1.8.2)
       esbuild:
         specifier: ^0.28.0
         version: 0.28.0
@@ -179,12 +183,12 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  ags@file:../../../../usr/share/ags/js:
-    resolution: {directory: ../../../../usr/share/ags/js, type: directory}
+  ags@file:../../../usr/share/ags/js:
+    resolution: {directory: ../../../usr/share/ags/js, type: directory}
     engines: {gjs: '>=1.79.0'}
     os: [linux]
     peerDependencies:
-      gnim: ^1.9.0
+      gnim: ^1.9.1
 
   esbuild@0.28.0:
     resolution: {integrity: sha512-sNR9MHpXSUV/XB4zmsFKN+QgVG82Cc7+/aaxJ8Adi8hyOac+EXptIp45QBPaVyX3N70664wRbTcLTOemCAnyqw==}
@@ -204,6 +208,11 @@ packages:
   gnim@1.8.2:
     resolution: {integrity: sha512-VwvTLclraJPAhS//SzdlWNOdaA7xKqC7KkJpIq5jq9DKDTXPis5SCrExFxrcjtcujK+I2l4drNvoXp6s1G78NA==}
     engines: {gjs: '>=1.79.0'}
+
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
 
 snapshots:
 
@@ -285,7 +294,7 @@ snapshots:
   '@esbuild/win32-x64@0.28.0':
     optional: true
 
-  ags@file:../../../../usr/share/ags/js(gnim@1.8.2):
+  ags@file:../../../usr/share/ags/js(gnim@1.8.2):
     dependencies:
       gnim: 1.8.2
 
@@ -325,3 +334,5 @@ snapshots:
       gnim: 1.8.2
 
   gnim@1.8.2: {}
+
+  typescript@6.0.3: {}

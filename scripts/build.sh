@@ -78,14 +78,16 @@ echo "[info] creating executable"
 echo -en "\
 #!/usr/bin/bash
 
+script_dir=\"\$(cd \"\$(dirname \"\$0\")\" && pwd)\"
 runtime_dir=\${XDG_RUNTIME_DIR:-\"/run/user/\$(id -u)\"}/colorshell
 file=\"\$runtime_dir/colorshell\"
 
 mkdir -p \"\$runtime_dir\"
 
 echo -n '`cat $output/clsh.js | base64`' | base64 --decode > \"\$file\"
-chmod +x "\$file"
+chmod +x \"\$file\"
 
+cd \"\$(dirname \"\$script_dir\")\"
 LD_PRELOAD=\"/usr/lib/libgtk4-layer-shell.so\" \$file \$@
 LD_PRELOAD=
 " > $output/colorshell
